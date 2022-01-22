@@ -1,4 +1,2 @@
-# PD_Thesis
-
-This repository is for code the code created for data processing 
-The content is mostly machine learning and signal processing 
+# Masters Thesis at DTU 
+The project is conducted in relation to my masters thesis in 2021-2022. The repository contains the code for preprocessing and training the model 
