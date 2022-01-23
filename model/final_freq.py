@@ -101,9 +101,6 @@ def validate_epoch(model,device,use_cuda,test_loader,loss_fn,accuracy_score):
     return test_loss, f1score
 
 ##------------##------------##------------##------------##------------##------------##---
-#################################Cross Validation loop #################################
-# defining the CV-fold settings:
-##------------##------------##------------##------------##------------##------------##---
 optimizer_name = 'Adam'
 lr = 0.0001
 
@@ -114,15 +111,29 @@ print('The device for this training is:',device)
 loss_fn =  nn.CrossEntropyLoss();
 num_epochs = 500
 pd_data = ParkinsonsDatasetFreq()
+batch_size = 1
+validation_split = .15
+shuffle_dataset = True
+random_seed= 42
 model = Freq_Net().to(device)
 optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
+validation_split = .20
+# Creating data indices for training and validation splits:
+dataset_size = len(pd_data)
+indices = list(range(dataset_size))
+split = int(np.floor(validation_split * dataset_size))
+if shuffle_dataset :
+    np.random.seed(random_seed)
+    np.random.shuffle(indices)
+train_indices, val_indices = indices[split:], indices[:split]
 
-train_sampler = SubsetRandomSampler(train_idx)
-valid_sampler = SubsetRandomSampler(val_idx)
+# Creating PT data samplers and loaders:
+train_sampler = SubsetRandomSampler(train_indices)
+valid_sampler = SubsetRandomSampler(val_indices)
 train_loader = DataLoader(dataset = pd_data,  batch_size = 1, sampler = train_sampler)
 test_loader = DataLoader(dataset = pd_data,  batch_size = 1, sampler = valid_sampler)
 save_path = '/zhome/37/8/118154/Documents/finalmodelresults/freq/'
-history = {'train_loss': [], 'test_loss': [],'train_acc':[],'test_acc':[]}
+history = {'train_loss': [], 'test_loss': [],'train_f1':[],'test_f1':[]}
 for epoch in range(num_epochs):
     #scheduler.step() # change learning rate with step
     #if (epoch+1)% 20 == 0:
